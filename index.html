@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPI vs LI — UNQ · estructura comparada</title>
+<style>
+  :root{
+    --ink:#1d1c19; --muted:#5f5e5a; --faint:#8a8983;
+    --paper:#f6f7f5; --card:#ffffff; --line:#e3e4df;
+    --teal-fill:#e1f5ee; --teal-line:#9fe1cb; --teal-ink:#0f5e49; --teal-strong:#0f6e56;
+    --amber-fill:#faeeda; --amber-line:#f3d9a8; --amber-ink:#6f470e; --amber-strong:#854f0b;
+    --radius:12px;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#ECEAE2; --muted:#a9a89f; --faint:#7d7c75;
+      --paper:#1a1a18; --card:#232320; --line:#34342f;
+      --teal-fill:#10342b; --teal-line:#1d6a52; --teal-ink:#7fd8bb; --teal-strong:#5dcaa5;
+      --amber-fill:#3a2a0f; --amber-line:#7a5414; --amber-ink:#f0c97f; --amber-strong:#efaf4f;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); line-height:1.5;
+    padding:32px 20px 64px;
+  }
+  .wrap{max-width:760px; margin:0 auto}
+
+  header{margin-bottom:22px}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 8px}
+  h1{font-size:clamp(24px,5vw,32px); font-weight:600; line-height:1.15; margin:0 0 10px}
+  .lede{font-size:16px; color:var(--muted); margin:0 0 16px; max-width:60ch}
+  .meta{display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:13px}
+  .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 10px;
+    border-radius:999px; font-weight:500; font-size:13px}
+  .pill .yr{font-family:var(--mono); font-size:12px; opacity:.85}
+  .pill.t{background:var(--teal-fill); color:var(--teal-ink); border:1px solid var(--teal-line)}
+  .pill.a{background:var(--amber-fill); color:var(--amber-ink); border:1px solid var(--amber-line)}
+
+  .toolbar{display:flex; justify-content:space-between; align-items:center;
+    margin:24px 0 12px; gap:12px; flex-wrap:wrap}
+  .legend{display:flex; gap:16px; font-size:13px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .sw{width:13px; height:13px; border-radius:4px; display:inline-block}
+  .sw.t{background:var(--teal-fill); border:1px solid var(--teal-line)}
+  .sw.a{background:var(--amber-fill); border:1px solid var(--amber-line)}
+  .expandall{font-family:var(--sans); font-size:13px; font-weight:500; cursor:pointer;
+    background:none; border:1px solid var(--line); color:var(--ink);
+    padding:6px 12px; border-radius:8px}
+  .expandall:hover{border-color:var(--faint)}
+
+  .stack{display:flex; flex-direction:column; gap:10px}
+
+  .band{border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--card); overflow:hidden}
+  .band.shared{border-left:4px solid var(--teal-strong)}
+  .band.lionly{border-left:4px solid var(--amber-strong)}
+
+  .band-head{width:100%; text-align:left; cursor:pointer; background:none; border:0;
+    color:inherit; font-family:var(--sans);
+    display:flex; align-items:center; gap:14px; padding:16px 18px}
+  .band-head:focus-visible{outline:2px solid var(--teal-strong); outline-offset:-2px}
+  .htext{flex:1; min-width:0}
+  .htitle{font-size:17px; font-weight:600; margin:0 0 2px}
+  .hsub{font-size:13.5px; color:var(--muted); margin:0}
+  .tag{font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.03em;
+    padding:3px 8px; border-radius:6px; white-space:nowrap}
+  .tag.t{background:var(--teal-fill); color:var(--teal-ink)}
+  .tag.a{background:var(--amber-fill); color:var(--amber-ink)}
+  .chev{flex:none; width:18px; height:18px; color:var(--faint);
+    transition:transform .25s ease}
+  .band[open] .chev{transform:rotate(90deg)}
+
+  .band-body{display:grid; grid-template-rows:0fr; transition:grid-template-rows .28s ease}
+  .band[open] .band-body{grid-template-rows:1fr}
+  .body-inner{overflow:hidden}
+  .body-pad{padding:2px 18px 18px}
+  .note{font-size:13px; color:var(--muted); background:var(--paper);
+    border-radius:8px; padding:9px 12px; margin:0 0 12px}
+  ul.mats{list-style:none; margin:0; padding:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 18px}
+  @media (max-width:560px){ ul.mats{grid-template-columns:1fr} }
+  ul.mats li{font-size:14.5px; padding:5px 0; border-bottom:1px solid var(--line);
+    display:flex; align-items:baseline; gap:7px}
+  ul.mats li:last-child, ul.mats li:nth-last-child(2):nth-child(odd){border-bottom:0}
+  .dag{font-family:var(--mono); font-size:11px; color:var(--amber-strong);
+    font-weight:700; flex:none}
+  .foot{font-size:12.5px; color:var(--faint); margin:12px 0 0; padding-left:2px}
+  .foot b{color:var(--amber-strong); font-family:var(--mono); font-weight:700}
+
+  .divider{display:flex; align-items:center; gap:12px; margin:6px 2px; color:var(--amber-strong);
+    font-size:12.5px; font-family:var(--mono); letter-spacing:.04em}
+  .divider::before,.divider::after{content:""; flex:1; height:1px; background:var(--amber-line)}
+
+  .cierres{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+  @media (max-width:560px){ .cierres{grid-template-columns:1fr} }
+  .cierre{border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; background:var(--card)}
+  .cierre.t{border-top:4px solid var(--teal-strong)}
+  .cierre.a{border-top:4px solid var(--amber-strong)}
+  .cierre h3{font-size:15px; margin:0 0 4px; font-weight:600}
+  .cierre p{font-size:13.5px; color:var(--muted); margin:0}
+  .cierre .cr{font-family:var(--mono); font-size:12px}
+
+  .extra{margin-top:28px; border-top:1px solid var(--line); padding-top:22px}
+  .extra h2{font-size:18px; font-weight:600; margin:0 0 14px}
+  .xgrid{display:grid; gap:12px}
+  .xrow{border:1px solid var(--line); border-radius:10px; padding:14px 16px; background:var(--card)}
+  .xrow h4{margin:0 0 8px; font-size:14.5px; font-weight:600}
+  .xrow .two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media (max-width:560px){ .xrow .two{grid-template-columns:1fr} }
+  .xrow .col b{display:block; font-size:12px; font-family:var(--mono); margin-bottom:3px}
+  .xrow .col.t b{color:var(--teal-ink)}
+  .xrow .col.a b{color:var(--amber-ink)}
+  .xrow .col p{margin:0; font-size:13.5px; color:var(--muted)}
+
+  footer{margin-top:32px; font-size:12px; color:var(--faint); line-height:1.6}
+  footer a{color:inherit}
+
+  @media (prefers-reduced-motion: reduce){
+    .band-body,.chev{transition:none}
+  }
+
+  /* Materias clickeables + popover de detalle */
+  ul.mats li.mat-has{cursor:pointer; transition:color .15s}
+  ul.mats li.mat-has:hover{color:var(--teal-strong)}
+  .band.lionly ul.mats li.mat-has:hover{color:var(--amber-strong)}
+  ul.mats li.mat-has::after{content:"\24D8"; font-size:11px; color:var(--faint);
+    opacity:0; margin-left:auto; transition:opacity .15s}
+  ul.mats li.mat-has:hover::after, ul.mats li.mat-has.is-open::after{opacity:.9}
+
+  .mat-pop{position:absolute; z-index:50; width:min(380px,calc(100vw - 24px));
+    max-height:min(72vh,540px); overflow:auto; background:var(--card);
+    border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:0 14px 36px rgba(0,0,0,.20); padding:16px 18px 18px;
+    font-size:13.5px; line-height:1.5; color:var(--ink)}
+  .mat-pop-close{position:absolute; top:7px; right:9px; border:0; background:none;
+    color:var(--faint); font-size:21px; line-height:1; cursor:pointer; padding:2px 6px}
+  .mat-pop-close:hover{color:var(--ink)}
+  .mat-pop-title{font-size:15.5px; font-weight:600; margin:0 0 10px; padding-right:20px}
+  .mat-pop-meta{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 13px}
+  .mp-chip{font-family:var(--mono); font-size:11.5px; padding:3px 9px; border-radius:6px;
+    background:var(--paper); border:1px solid var(--line); color:var(--muted)}
+  .mat-pop-sec{margin:0 0 12px}
+  .mat-pop-sec:last-child{margin-bottom:0}
+  .mat-pop-sec>b{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 5px}
+  .mat-pop-sec p{margin:0; color:var(--muted)}
+  .mat-pop-sec ul{margin:0; padding-left:17px; color:var(--muted)}
+  .mat-pop-sec li{margin:0 0 3px}
+  .mp-none{font-style:italic}
+  .mat-pop-note{font-size:12px; color:var(--faint); background:var(--paper);
+    border-radius:8px; padding:8px 11px; margin-top:12px}
+  @media (prefers-reduced-motion: no-preference){
+    .mat-pop{animation:mpfade .14s ease}
+    @keyframes mpfade{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Universidad Nacional de Quilmes · planes vigentes</p>
+    <h1>TPI vs LI: la misma base, dos techos distintos</h1>
+    <p class="lede">La Licenciatura no corre en paralelo a la Tecnicatura: la <em>contiene</em>. Comparten el tronco (bandas celestes) y la LI agrega dos capas propias (ámbar). Tocá cada banda para ver las materias.</p>
+    <div class="meta">
+      <span class="pill t">TPI <span class="yr">· pregrado · 3,5 años</span></span>
+      <span class="pill a">LI <span class="yr">· grado · 5,5 años</span></span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="legend">
+      <span><i class="sw t"></i> En TPI y LI</span>
+      <span><i class="sw a"></i> Solo en LI</span>
+    </div>
+    <button class="expandall" id="toggleAll" aria-pressed="false">Expandir todo</button>
+  </div>
+
+  <div class="stack" id="stack">
+
+    <!-- Banda 1 -->
+    <section class="band shared">
+      <button class="band-head" aria-expanded="false">
+        <div class="htext">
+          <p class="htitle">Ciclo introductorio</p>
+          <p class="hsub">3 materias · idéntico en ambos planes</p>
+        </div>
+        <span class="tag t">TPI + LI</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="band-body"><div class="body-inner"><div class="body-pad">
+        <ul class="mats">
+          <li>Elementos de Programación y Lógica</li>
+          <li>Lectura y Escritura Académica</li>
+          <li>Matemática</li>
+        </ul>
+      </div></div></div>
+    </section>
+
+    <!-- Banda 2 -->
+    <section class="band shared">
+      <button class="band-head" aria-expanded="false">
+        <div class="htext">
+          <p class="htitle">Programación base</p>
+          <p class="hsub">7 materias · Núcleo Básico en ambos</p>
+        </div>
+        <span class="tag t">TPI + LI</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="band-body"><div class="body-inner"><div class="body-pad">
+        <ul class="mats">
+          <li>Introducción a la Programación</li>
+          <li>Organización de Computadoras</li>
+          <li>Matemática I</li>
+          <li>Programación con Objetos I</li>
+          <li>Programación con Objetos II</li>
+          <li>Estructuras de Datos</li>
+          <li>Bases de Datos</li>
+        </ul>
+      </div></div></div>
+    </section>
+
+    <!-- Banda 3 -->
+    <section class="band shared">
+      <button class="band-head" aria-expanded="false">
+        <div class="htext">
+          <p class="htitle">Desarrollo aplicado</p>
+          <p class="hsub">9 materias · TPI: Avanzado → LI: Básico</p>
+        </div>
+        <span class="tag t">TPI + LI</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="band-body"><div class="body-inner"><div class="body-pad">
+        <p class="note">Son las mismas materias en los dos planes. La diferencia es de jerarquía: para la TPI son su <em>techo</em> (Núcleo Avanzado); para la LI son <em>piso</em> (Núcleo Básico).</p>
+        <ul class="mats">
+          <li>Redes de Computadoras</li>
+          <li>Sistemas Operativos</li>
+          <li>Laboratorio de SO y Redes</li>
+          <li>Programación Concurrente</li>
+          <li>Programación Funcional</li>
+          <li>Matemática II</li>
+          <li>Elementos de Ingeniería de Software</li>
+          <li>Construcción de Interfaces de Usuario</li>
+          <li>Estrategias de Persistencia</li>
+        </ul>
+        <p class="foot">Acá la TPI suma además <b>Desarrollo de Aplicaciones</b> (no existe en la LI; su equivalente es <em>Práctica del Desarrollo de Software</em>, que la LI ubica en su capa de ingeniería).</p>
+      </div></div></div>
+    </section>
+
+    <div class="divider">desde acá, solo LI</div>
+
+    <!-- Banda 4 -->
+    <section class="band lionly">
+      <button class="band-head" aria-expanded="false">
+        <div class="htext">
+          <p class="htitle">Capa teórico-formal</p>
+          <p class="hsub">10 materias · matemática, lógica y cómputo</p>
+        </div>
+        <span class="tag a">Solo LI</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="band-body"><div class="body-inner"><div class="body-pad">
+        <ul class="mats">
+          <li>Análisis Matemático</li>
+          <li>Matemática III</li>
+          <li>Probabilidad y Estadística</li>
+          <li>Lógica y Programación</li>
+          <li>Algoritmos</li>
+          <li>Lenguajes Formales y Autómatas</li>
+          <li>Teoría de la Computación</li>
+          <li>Características de Lenguajes de Programación</li>
+          <li>Parseo y Generación de Código</li>
+          <li>Arquitectura de Computadoras</li>
+        </ul>
+      </div></div></div>
+    </section>
+
+    <!-- Banda 5 -->
+    <section class="band lionly">
+      <button class="band-head" aria-expanded="false">
+        <div class="htext">
+          <p class="htitle">Ingeniería, arquitectura y especialización</p>
+          <p class="hsub">9 materias · proceso, escala y dirección</p>
+        </div>
+        <span class="tag a">Solo LI</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="band-body"><div class="body-inner"><div class="body-pad">
+        <ul class="mats">
+          <li>Ingeniería de Requerimientos</li>
+          <li>Práctica del Desarrollo de Software</li>
+          <li>Gestión de Proyectos de Desarrollo de Software</li>
+          <li>Sistemas Distribuidos</li>
+          <li>Arquitectura de Software II</li>
+          <li><span class="dag">†</span>Seguridad de la Información</li>
+          <li><span class="dag">†</span>Arquitectura de Software I</li>
+          <li><span class="dag">†</span>Programación con Objetos III</li>
+          <li>Aspectos Legales y Sociales</li>
+        </ul>
+        <p class="foot"><b>†</b> En la LI son obligatorias. En la TPI existen variantes pero como <em>optativas</em> del Núcleo Complementario: Seguridad Informática, Introducción a las Arquitecturas de Software y Programación con Objetos III.</p>
+      </div></div></div>
+    </section>
+
+  </div>
+
+  <div class="cierres">
+    <div class="cierre t">
+      <h3>Cierre TPI — Trabajo de Inserción Profesional</h3>
+      <p><span class="cr">10 créditos</span> · perfil de inserción laboral: sumarse a un equipo existente.</p>
+    </div>
+    <div class="cierre a">
+      <h3>Cierre LI — Seminario Final (SCPI o SF)</h3>
+      <p><span class="cr">20 créditos</span> · perfil académico. La LI además acredita un título intermedio (Diplomatura en Programación Informática).</p>
+    </div>
+  </div>
+
+  <section class="extra">
+    <h2>Otras diferencias de estructura</h2>
+    <div class="xgrid">
+      <div class="xrow">
+        <h4>Núcleo de idiomas</h4>
+        <div class="two">
+          <div class="col t"><b>TPI</b><p>Inglés I y II.</p></div>
+          <div class="col a"><b>LI</b><p>Inglés I y II + un taller humanístico (Trabajo Intelectual o Universitario).</p></div>
+        </div>
+      </div>
+      <div class="xrow">
+        <h4>Núcleo complementario (optativas)</h4>
+        <div class="two">
+          <div class="col t"><b>TPI</b><p>Mínimo 3 cursos, 11 opciones más introductorias.</p></div>
+          <div class="col a"><b>LI</b><p>Mínimo 4 cursos, 16 opciones más avanzadas: Semántica de Lenguajes, Redes Neuronales, Programación Cuántica, Ciencia de Datos, Calidad del Software…</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>TPI: Tecnicatura Universitaria en Programación Informática (RCS 459/15). LI: Licenciatura en Informática (RCS 128/19). Correlatividades del núcleo básico actualizadas por RCS 662/22.<br>
+    Fuente: Coordinación de Programas Informáticos — UNQ (cpi.blog.unq.edu.ar). Mapa orientativo, no reemplaza el texto oficial del plan.</p>
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.band-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var band = btn.closest('.band');
+      var open = band.hasAttribute('open');
+      if(open){ band.removeAttribute('open'); btn.setAttribute('aria-expanded','false'); }
+      else { band.setAttribute('open',''); btn.setAttribute('aria-expanded','true'); }
+      syncToggle();
+    });
+  });
+  var toggle = document.getElementById('toggleAll');
+  function syncToggle(){
+    var bands = document.querySelectorAll('.band');
+    var allOpen = Array.prototype.every.call(bands, function(b){ return b.hasAttribute('open'); });
+    toggle.textContent = allOpen ? 'Contraer todo' : 'Expandir todo';
+    toggle.setAttribute('aria-pressed', allOpen ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function(){
+    var bands = document.querySelectorAll('.band');
+    var allOpen = Array.prototype.every.call(bands, function(b){ return b.hasAttribute('open'); });
+    bands.forEach(function(b){
+      var btn = b.querySelector('.band-head');
+      if(allOpen){ b.removeAttribute('open'); btn.setAttribute('aria-expanded','false'); }
+      else { b.setAttribute('open',''); btn.setAttribute('aria-expanded','true'); }
+    });
+    syncToggle();
+  });
+</script>
+
+<script>
+/* Detalle por materia — carga horaria, créditos, correlativas y contenidos mínimos.
+   Fuentes: planes 2015 (TPI) y 2019 (LI), RCS 459/15, 128/19 y 662/22. */
+(function(){
+  var R662 = "Correlatividades actualizadas por la RCS 662/22.";
+  var DATA = {
+    "Elementos de Programación y Lógica": {hs:"5", cr:10, corr:[], c:"Concepto, definiciones básicas y aplicaciones de lenguajes de marcado (caso de estudio: Markdown) y de marcado para páginas web (caso de estudio: HTML). Representación de información mediante comandos para la ejercitación de niveles de abstracción. Resolución de problemas y modelado de situaciones a través de algoritmos. Nociones introductorias de lógica proposicional y de primer orden."},
+    "Lectura y Escritura Académica": {hs:"5", cr:10, corr:[], c:"Reformulación léxica y sintáctica. Consistencia en referencia, género, número y tiempos verbales. Nominalización. Puntuación y subordinación. Unidades escritas: sección, párrafo, oración. Planteo de objetivos, preguntas, hipótesis y estructura. Organizadores del discurso. Argumentación y negociación oral. Consignas de parcial. Planificación, monitoreo y reescritura. Búsqueda, contraste y evaluación de fuentes. Citas y verbos de cita. Organización y presentación de un informe."},
+    "Matemática": {hs:"5", cr:10, corr:[], c:"Números reales: operaciones, propiedades, intervalos, valor absoluto. Funciones: definición, imagen, gráfica, transformaciones; función lineal y cuadrática. Plano cartesiano; rectas: paralelismo y perpendicularidad; circunferencia. Expresiones algebraicas: polinomios, factorización, expresiones racionales. Ecuaciones e inecuaciones; sistemas lineales; introducción a matrices; programación lineal. Trigonometría: circunferencia trigonométrica, funciones seno y coseno, resolución de triángulos."},
+    "Matemática I": {hs:"8", cr:16, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica"], nota:R662, c:["Lógica proposicional y de primer orden. Técnicas de prueba.","Teoría básica de conjuntos.","Inducción matemática sobre números naturales.","Relaciones binarias: de orden, de equivalencia y funcionales.","Elementos básicos de análisis combinatorio."]},
+    "Introducción a la Programación": {hs:"8", cr:16, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica"], nota:R662, c:["Qué es un programa.","Herramientas del programador: entornos de ejecución y de desarrollo.","Programación imperativa: acciones y comandos, valores y expresiones, tipos, estado.","Terminación y parcialidad. Precondiciones para software robusto.","Programación estructurada: funciones y procedimientos.","Resolución de pequeños problemas mediante programas.","Estructuras de datos básicas: listas y registros."]},
+    "Organización de Computadoras": {hs:"6", cr:12, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica"], nota:R662, c:["Representación de la información: alfanumérico, numérico, punto fijo y flotante, ASCII; sistema binario.","Aritmética de las computadoras; modelo de Von Neumann.","Unidades funcionales: CPU, Unidad de Control, memorias, ciclo de instrucciones, direccionamiento.","Periféricos y procesadores de E/S.","Lógica digital: tablas de verdad, circuitos combinatorios y secuenciales.","Arquitectura: CPU, memoria principal y secundaria, jerarquía de memorias.","Subsistema de Entrada/Salida.","Lenguaje máquina. Código fuente y código objeto."]},
+    "Estructuras de Datos": {hs:"8", cr:16, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica","Introducción a la Programación"], c:["Recursión sobre listas y árboles.","Tipos algebraicos: maybe, either, enumerativos, listas, árboles binarios y generales.","Estructuras contenedoras: pilas, colas, diccionarios, heaps, árboles balanceados.","Representación e invariante de representación.","Uso imperativo de estructuras de datos; iteración en listas y árboles.","Modelo de memoria imperativo: stack/heap, punteros, variables por referencia.","Listas encadenadas, árboles con punteros, binary heaps con arrays.","Hashing. Análisis de eficiencia e implementación.","Algoritmos de ordenamiento.","Nociones básicas de algoritmos sobre grafos."]},
+    "Programación con Objetos I": {hs:"8", cr:16, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica","Introducción a la Programación"], c:["Conceptos fundantes: objeto y mensaje. Visión externa del objeto.","Polimorfismo en objetos y sus ventajas.","Protocolo/interfaz; concepto de tipo; la interfaz como contrato.","Estado en objetos: referencias, conocimiento, estado interno. Métodos, clases, herencia, method lookup.","Responsabilidad y delegación.","Colecciones como objetos; acceso a sus elementos.","Testeo automático y repetible.","Nociones de manejo de errores; excepciones e interrupción del flujo."]},
+    "Bases de Datos": {hs:"6", cr:12, corr:["Lectura y Escritura Académica","Matemática","Elementos de Programación y Lógica","Matemática I"], nota:R662, c:["Qué es un modelo de datos: conceptuales, lógicos y físicos.","Modelo entidad-relación.","Modelo relacional: tabla, atributo, dominio, valor, fila; integridad; operaciones.","SQL: consultas, joins, agrupamientos, subqueries.","Transacción: concepto y demarcación."]},
+    "Programación con Objetos II": {hs:"6", cr:12, corr:["Programación con Objetos I"], c:["Aproximación al diseño de software; el diseño como toma de decisiones.","Acoplamiento y cohesión.","Vínculo entre diseño y objetos: conocimiento, responsabilidades, tipo y polimorfismo.","Características deseadas en un diseño de objetos.","Patrones de diseño y sus consecuencias.","Proceso de diseño: foco en responsabilidades; diagramas.","Metaprogramación y reflexión.","Uso de un entorno integrado de la industria.","Notación UML: clases, objetos y secuencia.","Profundización de testeo unitario y manejo de errores."]},
+    "Redes de Computadoras": {hs:"6", cr:12, corr:["Organización de Computadoras"], c:["Concepto de red; redes y comunicación.","Modelos en capas: OSI e Internet.","Protocolo y servicio.","Nivel físico: dispositivos, cableado estructurado.","Nivel de enlace: tramas, puentes, enlaces inalámbricos.","Nivel de red: ruteo, topologías, IP.","Nivel de transporte: UDP y TCP, sockets, control de congestión.","Modelo de Internet: http, dhcp, dns, smtp y la Web.","Estándares de Internet; RFC.","VPN; administración de redes; firewalls.","Sistemas cliente/servidor."]},
+    "Sistemas Operativos": {hs:"6", cr:12, corr:["Organización de Computadoras","Introducción a la Programación"], c:["Introducción a los SO: abstracción del hardware; estructura, servicios y tipos de sistemas.","Procesos y threads: planificación; comunicación; deadlocks.","Planificación: algoritmos y criterios; multiprocesamiento.","Manejo de memoria: swapping, paginación, segmentación.","Memoria virtual: paginación bajo demanda, reemplazo de página, thrashing.","Sistemas de archivos y directorios.","Protección: dominios, matriz de acceso.","Prácticas con shell scripting e instalaciones tipo Unix (GNU/Linux)."]},
+    "Laboratorio de Sistemas Operativos y Redes": {hs:"4", cr:8, corr:["Redes de Computadoras","Sistemas Operativos"], c:["Instalación y operación de servicios de Internet: servidores de aplicaciones, mail, FTP, firewalls.","Servicios de directorio; servidores LDAP.","Gestión de usuarios y control de accesos.","Sistemas de backup automatizados; políticas de criticidad.","Repositorios de código.","Monitoreo de redes; SNMP.","Computación orientada a redes; sistemas colaborativos."]},
+    "Programación Concurrente": {hs:"4", cr:8, corr:["Estructuras de Datos"], c:["Porqués de la concurrencia; concurrencia vs. paralelismo.","Memoria compartida; atomicidad e independencia.","Secciones críticas, locks, barriers, semáforos, monitores, condition variables, rendezvous.","Problemas: starvation, deadlocks, liveness, safety, race conditions, fairness.","Pasaje de mensajes: comunicación sincrónica vs. asincrónica.","Modelos: Cliente/Servidor, Productor/Consumidor.","Aplicación en lenguajes concretos; mecanismos de sincronización."]},
+    "Programación Funcional": {hs:"4", cr:8, corr:["Estructuras de Datos"], c:["Paradigma funcional: valores y expresiones; funciones como valores; ecuaciones; sintaxis.","Sistema de tipos Hindley-Milner; polimorfismo; funciones de alto orden; currificación.","Inducción/recursión: definición inductiva de conjuntos; inducción estructural.","Listas como tipo inductivo; map, filter, foldr; demostración de propiedades.","Sistemas de tipos: tipado fuerte; inferencia; tipos algebraicos recursivos.","Transformación de programas: tupling, eliminación de recursión, fusión."]},
+    "Matemática II": {hs:"4", cr:8, corr:["Matemática I"], c:["Matrices, determinantes y sistemas de ecuaciones lineales.","Estructuras algebraicas: monoides, semigrupos y grupos.","Espacios vectoriales de dimensión finita.","Aritmética entera y modular.","Introducción a la probabilidad discreta."]},
+    "Elementos de Ingeniería de Software": {hs:"6", cr:12, corr:["Programación con Objetos II"], c:["Teoría general de sistemas; sistemas de información.","Metodologías ágiles (p. ej. Scrum): actividades, productos, roles.","Metodologías estructuradas (p. ej. UP).","Ciclo de vida; métricas; estimación de esfuerzos.","Requerimientos funcionales y no funcionales.","Testing: unidad, funcional, sistema, stress, carga; coverage.","Prácticas de XP: peer programming, integración continua, refactor.","TDD.","Riesgo y plan de contingencia.","Software de sistemas de tiempo real."]},
+    "Construcción de Interfaces de Usuario": {hs:"6", cr:12, corr:["Programación con Objetos II"], c:["Arquitecturas según la interfaz: centralizada, cliente-servidor, distribuida; RIA.","Arquitecturas web, protocolos y tecnologías.","Modelos de interacción: eventos, pedido-respuesta, continuations.","Estrategias para describir vistas: HTML, CSS, templates, componentes, declarativas.","Vínculo interfaz-modelo de dominio: validaciones, errores, transacciones; DAOs, servicios.","Adaptación del modelo a la interfaz; MVC; modelo de la vista.","Selección de tecnologías de presentación.","Comunicación sincrónica y asincrónica.","Navegación y estado conversacional; REST; sesión.","Nociones de usabilidad y estándares."]},
+    "Estrategias de Persistencia": {hs:"6", cr:12, corr:["Programación con Objetos II","Bases de Datos"], c:["Acceso concurrente a una base de datos; lockeo y transacciones.","Performance en el acceso a datos; índices.","Usuarios y permisos.","Bases de objetos vs. relacionales.","Bases distribuidas para grandes volúmenes; transacciones distribuidas.","Interacción programa-mecanismo de persistencia.","Recuperación de objetos persistidos; reachability, cascada.","ORM: alcances, mapeo de herencia y relaciones n-m.","Transacciones de negocio; unit of work.","Performance y concurrencia: lazyness, cache, versionado, lockeo optimista y pesimista."]},
+    "Análisis Matemático": {hs:"6", cr:12, corr:["Matemática II"], c:"Funciones. Límite. Continuidad. Derivada. Aplicaciones del teorema del valor medio. Integral definida. Métodos de integración. Regla de L'Hôpital. Aplicaciones de la integral en una variable."},
+    "Matemática III": {hs:"4", cr:8, corr:["Análisis Matemático"], c:["Polinomios.","Números complejos.","Polinomio de Taylor para funciones de una variable.","Cálculo diferencial e integral en varias variables: límite doble, derivadas parciales y direccionales, integrales dobles.","Fórmula de Taylor en dos variables."]},
+    "Probabilidad y Estadística": {hs:"6", cr:12, corr:["Matemática III"], c:"Estadística descriptiva. Modelos determinísticos y estocásticos. Distribución de probabilidades sobre un espacio muestral. Variables aleatorias discretas y continuas. Inferencia estadística. Intervalos de confianza. Varianza. Regresión lineal. Coeficientes de correlación. Ensayos de hipótesis. Números aleatorios. Método Montecarlo."},
+    "Lógica y Programación": {hs:"6", cr:12, corr:["Matemática I","Introducción a la Programación"], c:["Lógica proposicional: lenguaje, semántica, deducción, metateoremas, lógica trivaluada.","Lógica de primer orden: semántica, sistema axiomático, indecidibilidad.","Programación lógica: resolución, PROLOG; IA simbólica y no simbólica.","Especificación de programas: lógica de Hoare, corrección, verificación de algoritmos."]},
+    "Algoritmos": {hs:"6", cr:12, corr:["Programación Funcional"], c:["Noción de algoritmo; criterios de selección.","Notación O y Ω; análisis del tiempo de ejecución.","Divide y vencerás.","Programación dinámica.","Algoritmos greedy.","Precondicionamiento y transformación del dominio.","Programación matemática, heurísticas; algoritmos numéricos.","Casos: Huffman, encriptación, compresión, búsqueda, ordenamiento.","Grafos: DFS, BFS, Prim, Kruskal, Dijkstra, Floyd, sort topológico.","Cadenas: matching, alineamiento, sufijos."]},
+    "Lenguajes Formales y Autómatas": {hs:"4", cr:8, corr:["Lógica y Programación"], c:"Lenguajes y gramáticas. Clasificación de Chomsky. Lenguajes regulares. Autómatas. Expresiones regulares. Minimización de autómatas. Analizadores lexicográficos. Lenguajes independientes de contexto. Árboles de derivación. Autómatas de pila. Lenguajes determinísticos. Lenguajes tipo 1 y tipo 0. Máquinas asociadas."},
+    "Teoría de la Computación": {hs:"4", cr:8, corr:["Lenguajes Formales y Autómatas"], c:["Máquinas de Turing; máquinas algorítmicas.","Problemas computables y no computables.","Problema de la parada.","Problemas tratables e intratables.","Conjuntos decidibles y r.e.; reducciones many-one.","Clases L, P, PSPACE, NP; NP-completitud."]},
+    "Características de Lenguajes de Programación": {hs:"4", cr:8, corr:["Lógica y Programación"], c:["Según su modelo de cómputo: imperativo, funcional, objetos, lógico.","Según sus características: tipados y no tipados; binding estático y dinámico; pasaje de parámetros; compilación/interpretación/máquinas virtuales; administración de memoria.","Según su propósito: generales, de dominio específico, scripting.","Según la forma de asignar significado: semánticas operacional, denotacional y axiomática."]},
+    "Parseo y Generación de Código": {hs:"4", cr:2, corr:["Lenguajes Formales y Autómatas","Características de Lenguajes de Programación"], c:["Estructura de compiladores; compilación vs. interpretación.","Análisis léxico y sintáctico.","Árboles de parsing y de sintaxis abstracta.","Análisis semántico.","Generación de código."]},
+    "Arquitectura de Computadoras": {hs:"4", cr:8, corr:["Laboratorio de Sistemas Operativos y Redes"], c:["Jerarquías de memoria: segmentada y virtual.","Interrupciones: tipos, entorno y contexto, cambio de contexto, atención.","Subsistema de Entrada y Salida.","Coprocesadores (aritméticos, de video, etc.).","Procesadores de alta prestación.","Microarquitectura: unidad de control, microprograma, microinstrucciones.","Tipos de arquitecturas: RISC, en paralelo, GRID, multiprocesadores."]},
+    "Ingeniería de Requerimientos": {hs:"4", cr:8, corr:["Elementos de Ingeniería de Software"], c:["Estrategias de extracción de requerimientos.","Organización en modelos: casos de uso, análisis OO, reglas de negocio, workflows.","Nociones de métodos formales.","Análisis en metodologías ágiles.","Validación de requerimientos; tests de aceptación.","Requerimientos no funcionales: performance, escalabilidad, usabilidad, robustez, seguridad."]},
+    "Práctica del Desarrollo de Software": {hs:"8", cr:16, corr:["Construcción de Interfaces de Usuario"], c:["Validación y testing como proceso continuo.","Tests de integración; automatización de persistencia e interfaz.","Diagnóstico: stacktraces, breakpoints, watchpoints; manejo de excepciones.","Reingeniería y refactorización sobre proyectos en funcionamiento.","Migraciones de modelos de datos; compatibilidad hacia atrás.","Trabajo en grupo; mock objects.","Versionado de fuentes; repositorios; resolución de conflictos.","Versionado de bibliotecas y ejecutables; dependencias.","Integración continua; automatización de procesos.","Control de cambios; trazabilidad.","Integración en un proyecto mediano."]},
+    "Gestión de Proyectos de Desarrollo de Software": {hs:"4", cr:8, corr:["Ingeniería de Requerimientos"], c:["Planificación y estimación de proyectos.","Definición y documentación de actividades.","Monitoreo y seguimiento.","Aseguramiento de calidad.","Gestión del equipo de trabajo.","Comunicación.","Gestión de riesgos.","Gestión de adquisiciones y subcontrataciones.","Gestión de la relación con el cliente."]},
+    "Sistemas Distribuidos": {hs:"4", cr:8, corr:["Programación Concurrente","Laboratorio de Sistemas Operativos y Redes"], c:["Introducción a los sistemas de procesamiento distribuido.","Comunicación: pasaje de mensajes y RPC.","Tiempo, sincronización y coordinación distribuida.","Memoria compartida distribuida; asignación de tareas y balance de cargas.","Manejo de archivos distribuidos."]},
+    "Arquitectura de Software II": {hs:"6", cr:12, corr:["Arquitectura de Software I","Sistemas Distribuidos"], c:["Escalabilidad, eficiencia y efectividad; grandes volúmenes de datos.","Dimensionamiento de hardware: procesamiento, memoria, almacenamiento, cuellos de botella.","Dimensionamiento de software: ancho de banda, picos, usuarios y sesiones concurrentes.","Escalamiento vertical y horizontal: clustering, balanceo, afinidad, sharding.","Tolerancia a fallos: replicación, autorecuperación, corto-circuito.","Estrategias de cache; CDN.","Hardware de gran envergadura: virtualización, granjas, cloud computing.","Verificación de RNF: performance, tolerancia a fallos, carga.","Operación y monitoreo: logging, profiling, análisis de tráfico."]},
+    "Seguridad de la Información": {hs:"4", cr:8, corr:["Laboratorio de Sistemas Operativos y Redes"], c:["Introducción y objetivos de la Seguridad de la Información.","Gestión de la seguridad; análisis y tratamiento de riesgos.","Criptografía simétrica y asimétrica; hash.","Infraestructura de clave pública; certificados digitales.","Seguridad en redes; control de acceso lógico y físico.","Seguridad en las operaciones; gestión de usuarios y cambios.","Evaluación: auditorías, Vulnerability Assessment, Penetration Test; gestión de incidentes.","Seguridad en aplicaciones; vulnerabilidades web; software malicioso.","Leyes, regulaciones y estándares."]},
+    "Arquitectura de Software I": {hs:"6", cr:12, corr:["Programación Concurrente","Práctica del Desarrollo de Software","Gestión de Proyectos de Desarrollo de Software","Seguridad de la Información"], c:["Arquitectura de software y de sistemas: definición, objetivos y clasificación.","Actividades de arquitectura en distintas metodologías; arquitectura en ágiles; prototipos.","Insumos y objetivos: requerimientos, restricciones, atributos de calidad, robustez.","Estilos y patrones: capas, servicios, objetos, procesos (BPM).","Arquitectura de dominio: DDD, motores de reglas, workflows.","Integración de componentes; AOP; transacciones.","Patrones para la interfaz de usuario.","Arquitectura de persistencia; data warehouse, data mining.","Integración de aplicaciones: colas de mensajes, web services, ESB, legacy.","Configuración: inyección de dependencias, inversión de control, plugins.","Arquitecturas de seguridad: autenticación, autorización, SSO, roles.","Diseño de APIs y frameworks; fluent interfaces.","Verificación de arquitecturas y RNF.","Arquitecturas móviles, distribuidas y orientadas a agentes.","Cuestiones organizacionales y comunicación de la arquitectura."]},
+    "Programación con Objetos III": {hs:"4", cr:8, corr:["Programación con Objetos II"], c:["Sistemas de tipos en lenguajes con objetos: tipos nominales y estructurales; tipado explícito e implícito; duck typing; inferencia; early/late binding.","Variantes del paradigma: bloques y closures; non-local returns; herencia simple y múltiple; mixins y traits; prototipos; AOP; open classes.","Aplicaciones multilenguaje y multiparadigma; patrones de diseño; behavioral completeness.","Metaprogramación, reflexión, introspección, self-modification, mirrors.","DSLs: clasificación, creación; programación declarativa."]},
+    "Aspectos Legales y Sociales": {hs:"4", cr:2, corr:[], c:["Consideraciones generales.","Elementos de las relaciones económico-jurídicas.","La propiedad intelectual.","Contratos: conceptos generales.","Contratos informáticos en particular.","Documento digital, firma digital y derecho de Internet.","Régimen legal de las bases de datos.","Responsabilidad penal: delitos informáticos.","Actuación judicial del licenciado en informática; auditoría y peritaje."]}
+  };
+  /* Alias para los rótulos abreviados que aparecen en el mapa. */
+  var ALIAS = { "Laboratorio de SO y Redes": "Laboratorio de Sistemas Operativos y Redes" };
+
+  function norm(s){ return s.replace(/^[†\s]+/, "").replace(/ⓘ/g, "").replace(/\s+/g, " ").trim(); }
+  function dataFor(li){ var k = norm(li.textContent); return DATA[k] || DATA[ALIAS[k]]; }
+
+  var pop = document.createElement("div");
+  pop.className = "mat-pop"; pop.setAttribute("role", "dialog"); pop.hidden = true;
+  document.body.appendChild(pop);
+  var hideT = null, curLi = null;
+
+  function clearHide(){ if(hideT){ clearTimeout(hideT); hideT = null; } }
+  function scheduleHide(){ clearHide(); hideT = setTimeout(hide, 160); }
+  function hide(){ clearHide(); pop.hidden = true; if(curLi){ curLi.classList.remove("is-open"); curLi = null; } }
+  function esc(s){ var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+  function render(d, name){
+    var h = '<button class="mat-pop-close" aria-label="Cerrar">×</button>';
+    h += '<h3 class="mat-pop-title">' + esc(name) + '</h3>';
+    h += '<div class="mat-pop-meta">';
+    if(d.hs) h += '<span class="mp-chip">' + esc(d.hs) + ' h semanales</span>';
+    if(d.cr != null) h += '<span class="mp-chip">' + esc(String(d.cr)) + ' créditos</span>';
+    h += '</div>';
+    h += '<div class="mat-pop-sec"><b>Correlativas</b>';
+    h += (d.corr && d.corr.length) ? '<p>' + d.corr.map(esc).join(' · ') + '</p>'
+                                   : '<p class="mp-none">Sin correlativas</p>';
+    h += '</div>';
+    h += '<div class="mat-pop-sec"><b>Contenidos mínimos</b>';
+    if(Array.isArray(d.c)) h += '<ul>' + d.c.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
+    else h += '<p>' + esc(d.c) + '</p>';
+    h += '</div>';
+    if(d.nota) h += '<div class="mat-pop-note">' + esc(d.nota) + '</div>';
+    return h;
+  }
+
+  function position(li){
+    var r = li.getBoundingClientRect();
+    var sx = window.pageXOffset, sy = window.pageYOffset;
+    var pw = pop.offsetWidth, ph = pop.offsetHeight;
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var left = r.left + sx;
+    if(left + pw > sx + vw - 12) left = sx + vw - 12 - pw;
+    if(left < sx + 12) left = sx + 12;
+    var top = r.bottom + sy + 6;
+    if(r.bottom + ph + 8 > vh && r.top - ph - 6 > 0) top = r.top + sy - ph - 6;
+    pop.style.left = left + "px"; pop.style.top = top + "px";
+  }
+
+  function open(li){
+    var d = dataFor(li); if(!d) return;
+    if(curLi) curLi.classList.remove("is-open");
+    pop.innerHTML = render(d, norm(li.textContent));
+    pop.style.left = "-9999px"; pop.hidden = false;
+    position(li);
+    curLi = li; li.classList.add("is-open"); clearHide();
+    pop.querySelector(".mat-pop-close").addEventListener("click", hide);
+  }
+
+  document.querySelectorAll("ul.mats li").forEach(function(li){
+    if(!dataFor(li)) return;
+    li.classList.add("mat-has");
+    li.addEventListener("click", function(e){
+      e.stopPropagation();
+      if(curLi === li && !pop.hidden){ hide(); return; }
+      open(li);
+    });
+    li.addEventListener("mouseenter", clearHide);
+    li.addEventListener("mouseleave", function(){ if(!pop.hidden) scheduleHide(); });
+  });
+
+  pop.addEventListener("mouseenter", clearHide);
+  pop.addEventListener("mouseleave", scheduleHide);
+  pop.addEventListener("click", function(e){ e.stopPropagation(); });
+  document.addEventListener("click", function(){ if(!pop.hidden) hide(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") hide(); });
+})();
+</script>
+</body>
+</html>
